@@ -23,10 +23,11 @@
   (let [payments (chan)]
     (go
       (while true
-        (let [in (<! payments)]
-          (if (number? in)
-            (do (println (<!! warehouse-channel)))
-            (println "We only accept values! No Number, No Clothes")))))))
+       (let [in (<! payments)]
+         (if (number? in)
+           (do (println (<! warehouse-channel)))
+           (println "We only accept numeric values! No Number, No Clothes")))))
+   payments))
 
 (def income (make-payment-channel))
 
@@ -35,9 +36,6 @@
   [& args]
   (println "Hello, World!")
   (load-items-channel (generate-random-items warehouse-capacity) warehouse-channel))
-
-(-main)
-
 
 
 
