@@ -1,9 +1,13 @@
 (ns warehouse.core
   (:gen-class)
-  (:require [clojure.core.async :as async :refer [>! <! >!! <!! go chan buffer close! alts!!]]))
+  (:require [clojure.core.async :as async :refer [>! <! >!! <!! go chan buffer sliding-buffer close! alts!!]]))
 
 (def warehouse-capacity 10)
 (def warehouse-channel (chan warehouse-capacity))
+(def banana-channel (chan (sliding-buffer 3)))
+
+(doseq [item (range 3)]  
+ (>!! banana-channel :bananas))
 
 (def stock-map {0 :shirt
                 1 :pants
@@ -25,7 +29,9 @@
       (while true
        (let [in (<! payments)]
          (if (number? in)
-           (do (println (<! warehouse-channel)))
+           (let [[item ch] (alts!! [warehouse-channel banana-channel])]
+             (println "channel: " ch)
+             (println "item: " item))
            (println "We only accept numeric values! No Number, No Clothes")))))
    payments))
 
